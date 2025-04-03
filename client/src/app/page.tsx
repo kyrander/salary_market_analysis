@@ -44,13 +44,13 @@ export default function Home() {
         
         // Extract and set tegevusala valueTexts from the response
         if (response.data && 
-            response.data.variables && 
-            response.data.variables.length > 1 && 
-            response.data.variables[1].code === "Tegevusala" &&
-            response.data.variables[1].valueTexts) {
+            response.data.pa101.variables && 
+            response.data.pa101.variables.length > 1 && 
+            response.data.pa101.variables[1].code === "Tegevusala" &&
+            response.data.pa101.variables[1].valueTexts) {
           
           // Update searchResults with tegevusala options
-          setSearchResults(response.data.variables[1].valueTexts);
+          setSearchResults(response.data.pa101.variables[1].valueTexts.slice(1)); // Removing first 'select all' option
         }
       } catch (error) {
         console.error("Error sending initial data:", error);
