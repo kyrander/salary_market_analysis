@@ -87,10 +87,18 @@ npm run dev
 
 The client will run on [http://localhost:3000](http://localhost:3000).
 
-## Environment Variables
-Make sure to set up the following environment variable:
+## APIs Used
+This application integrates with the following external APIs:
 
-- For the server, add given openAI API key to file on path:
+### Statistics Estonia Database API
+- Used for retrieving statistical data for salary market analysis
+- Documentation: [Link to Statistics Estonia Database API documentation]https://andmed.stat.ee/abi/api-juhend.pdf
+
+### OpenAI API
+- Used for generating insights from Statistics Estonia salary data
+- Documentation: [Link to OpenAI API documentation]https://platform.openai.com/docs/api-reference/introduction
+- Requires an API key to be configured in the application
+- Setup: Add your OpenAI API key to the following file:
   ```
   server\src\services\open_ai\request.js
 
@@ -101,7 +109,6 @@ Make sure to set up the following environment variable:
 - If the setup script fails, try the manual installation steps.
 - Ensure all dependencies are properly installed by running `npm install` in both directories.
 - Check Node.js version with `node -v` and make sure it's v18 or higher.
-- If the setup script doesn't have execution permissions, run `chmod +x setup.sh` before executing it.
 
 ## Author
 Created by Kerly Kallas - Email: kerlykallas02@gmail.com - LinkedIn: linkedin.com/in/kerly-k
