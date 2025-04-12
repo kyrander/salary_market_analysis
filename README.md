@@ -47,7 +47,7 @@ cd salary_market_analysis
 powershell -ExecutionPolicy Bypass -File setup.ps1
 ```
 
-The setup script will automatically install all dependencies for both server and frontend.
+The setup script will automatically install all dependencies for both server and client.
 
 ### Option 2: Manual Installation
 
@@ -63,9 +63,9 @@ cd server
 npm install
 ```
 
-#### Step 3: Install Frontend Dependencies
+#### Step 3: Install Client Dependencies
 ```bash
-cd ../frontend
+cd ../client
 npm install
 ```
 
@@ -79,13 +79,13 @@ npm run dev
 
 The server will run on [http://localhost:8080](http://localhost:8080) (or the port specified in your configuration).
 
-### Frontend
+### Client
 ```bash
-cd frontend
+cd client
 npm run dev
 ```
 
-The frontend will run on [http://localhost:3000](http://localhost:3000).
+The client will run on [http://localhost:3000](http://localhost:3000).
 
 ## Environment Variables
 Make sure to set up the following environment variable:

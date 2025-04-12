@@ -27,9 +27,9 @@ npm install
 # Navigate back to the root directory
 cd ..
 
-# Navigate to frontend directory and install dependencies
-echo "Installing frontend dependencies..."
-cd frontend
+# Navigate to client directory and install dependencies
+echo "Installing client dependencies..."
+cd client
 npm install
 
 # Navigate back to the root directory
@@ -39,7 +39,9 @@ echo "Setup completed successfully!"
 echo ""
 echo "To start the application:"
 echo "  1. Start the server:   cd server && npm run dev"
-echo "  2. Start the frontend: cd frontend && npm run dev"
+echo "  2. Start the client: cd client && npm run dev"
+echo ""
+echo "Make sure to add the openAI API key according to readme file."
 echo ""
 echo "Server will run on: http://localhost:3000 (default)"
-echo "Frontend will run on: http://localhost:8080 (default)"
+echo "Client will run on: http://localhost:8080 (default)"

@@ -34,12 +34,12 @@ if ($LASTEXITCODE -ne 0) {
 # Navigate back to the root directory
 Set-Location -Path ".."
 
-# Navigate to frontend directory and install dependencies
-Write-Host "Installing frontend dependencies..."
-Set-Location -Path "frontend"
+# Navigate to client directory and install dependencies
+Write-Host "Installing client dependencies..."
+Set-Location -Path "client"
 npm install
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "Failed to install frontend dependencies."
+    Write-Host "Failed to install client dependencies."
     exit 1
 }
 
@@ -50,9 +50,9 @@ Write-Host "Setup completed successfully!"
 Write-Host ""
 Write-Host "To start the application:"
 Write-Host "  1. Start the server:   cd server && npm run dev"
-Write-Host "  2. Start the frontend: cd frontend && npm run dev"
+Write-Host "  2. Start the client: cd client && npm run dev"
 Write-Host ""
 Write-Host "Make sure to add the openAI API key according to readme file."
 Write-Host ""
 Write-Host "Server will run on: http://localhost:3000 (default)"
-Write-Host "Frontend will run on: http://localhost:8080 (default)"
+Write-Host "Client will run on: http://localhost:8080 (default)"
