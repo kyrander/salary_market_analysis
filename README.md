@@ -31,7 +31,7 @@ npm -v
 
 ### Option 1: Using the Setup Script (Recommended)
 ```bash
-git clone [https://github.com/kyrander/salary_market_analysis](https://github.com/kyrander/salary_market_analysis)
+git clone https://github.com/kyrander/salary_market_analysis
 cd salary-market-analysis
 chmod +x setup.sh
 ./setup.sh
@@ -43,7 +43,7 @@ The setup script will automatically install all dependencies for both server and
 
 #### Step 1: Clone the Repository
 ```bash
-git clone [https://github.com/kyrander/salary_market_analysis](https://github.com/kyrander/salary_market_analysis)
+git clone https://github.com/kyrander/salary_market_analysis
 cd salary-market-analysis
 ```
 
@@ -80,7 +80,7 @@ The frontend will run on [http://localhost:3000](http://localhost:3000).
 ## Environment Variables
 Make sure to set up the following environment variable:
 
-- For the server, add given openAI API key to file:
+- For the server, add given openAI API key to file on path:
   ```
   server\src\services\open_ai\request.js
 
