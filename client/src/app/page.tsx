@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef, MouseEvent, ChangeEvent } from "react";
 import axios from "axios";
+import AnalysisPanel from "./analysis";
+import SearchDropdown from "./searchbar";
 
 // Define interfaces for the data structure
 interface Sector {
@@ -40,11 +42,13 @@ export default function Home() {
   const [salaryData, setSalaryData] = useState<SalaryData | null>(null);
   const [showAllOptions, setShowAllOptions] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<TabType>("sector");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [aiAnalysis, setAiAnalysis] = useState<string>("");
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    // Send initial data to server using axios and update data 
-    const sendInitialData = async () => {
+    // Fetch statistics data from server
+    const fetchStatisticsData = async () => {
       try {
         const response = await axios.post("http://localhost:8080/api/fields", {
           timestamp: new Date(),
@@ -55,8 +59,7 @@ export default function Home() {
             screenHeight: window.innerHeight
           }
         });
-        
-        console.log("Initial data sent successfully:", response.data);
+        // console.log("Fetched statistics data successfully:", response.data);
         
         // Structure the data according to the nested format provided by the server
         setSalaryData({
@@ -72,7 +75,7 @@ export default function Home() {
     };
   
     // Execute when component mounts
-    sendInitialData();
+    fetchStatisticsData();
 
     // Close dropdown when clicking outside
     const handleClickOutside = (event: MouseEvent | any) => {
@@ -88,11 +91,77 @@ export default function Home() {
     };
   }, []);
 
+  // Fetch data analysis for a specific sector or occupation
+  const fetchDataAnalysis = async (type: TabType, code: string, name: string) => {
+    setLoading(true);
+    try {
+      // console.log(`Fetching ${type} data analysis for: ${name} (${code})`);
+
+      // Define the type for salaryTableData with an index signature
+      const salaryTableData: { [year: string]: number } = {};
+      
+      if (type === "sector" && salaryData) {
+        // For sectors, create a mapping of year to salary
+        salaryData.years.forEach(year => {
+          if (salaryData.salaries && 
+              salaryData.salaries[year] && 
+              salaryData.salaries[year][code] !== undefined) {
+            salaryTableData[year] = salaryData.salaries[year][code];
+          }
+        });
+      } else if (type === "occupation" && salaryData && salaryData.occupationSalaries) {
+        // For occupations, create a mapping of year to salary
+        Object.keys(salaryData.occupationSalaries).forEach(year => {
+          if (salaryData.occupationSalaries &&
+              salaryData.occupationSalaries[year] &&
+              salaryData.occupationSalaries[year][code] !== undefined) {
+            salaryTableData[year] = salaryData.occupationSalaries[year][code];
+          }
+        });
+      }
+      
+      // Prepare the data to send to the server
+      const requestData = {
+        name: name,
+        salaryData: salaryTableData,
+      };
+      // console.log("Sending data to server:", requestData);
+      
+      // Make the API request
+      const response = await axios.post("http://localhost:8080/api/openai", requestData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      // console.log(`Response from server:`, response.data);
+      
+      // Store the OpenAI response
+      if (response.data) {
+        setAiAnalysis(response.data);
+      } else {
+        setAiAnalysis("Analüüs pole saadaval.");
+      }
+      
+    } catch (error) {
+      console.error(`Error sending salary data:`, error);
+      if (axios.isAxiosError(error)) {
+        console.error('Axios error details:', {
+          response: error.response?.data,
+          status: error.response?.status
+        });
+      }
+      setAiAnalysis("Vabandust, analüüsi hankimisel tekkis viga.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
     setIsDropdownOpen(true);
-    setShowAllOptions(false); // When typing, we want to filter
+    setShowAllOptions(false); // Filter, when typing
     
     // Clear selected option when search changes
     if (query === '') {
@@ -114,9 +183,13 @@ export default function Home() {
     if (activeTab === "sector") {
       setSelectedSector(option as Sector);
       setSelectedOccupation(null);
+      // Fetch detailed sector data - pass both code and name
+      fetchDataAnalysis("sector", option.code, option.name);
     } else {
       setSelectedOccupation(option as Occupation);
       setSelectedSector(null);
+      // Fetch detailed occupation data - pass both code and name
+      fetchDataAnalysis("occupation", option.code, option.name);
     }
     
     setIsDropdownOpen(false);
@@ -142,6 +215,7 @@ export default function Home() {
     setSelectedOccupation(null);
     setIsDropdownOpen(false);
     setShowAllOptions(false);
+    setAiAnalysis(""); // Clear any previous analysis
   };
 
   // Filter options based on search query or show all if showAllOptions is true
@@ -156,8 +230,8 @@ export default function Home() {
           )));
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="flex flex-col items-center w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center p-4" ref={dropdownRef}>
+      <div className="flex flex-col items-center w-full max-w-4xl">
         {/* App Header with Name */}
         <h1 className="text-3xl font-bold mb-6">Palgaturu Analüüs Eestis</h1>
         
@@ -183,123 +257,30 @@ export default function Home() {
           </div>
         </div>
         
-        {/* Search Bar with Dropdown */}
-        <div className="w-full relative mb-4" ref={dropdownRef}>
-          <div className="relative flex">
-            <input
-              type="text"
-              placeholder={activeTab === "sector" ? "Sisesta valdkond..." : "Sisesta ametinimetus..."}
-              value={searchQuery}
-              onChange={handleSearchChange}
-              onFocus={handleFocus}
-              className="w-full p-2 border border-gray-300 rounded-md rounded-r-none focus:outline-none"
-            />
-            <button 
-              onClick={toggleDropdown}
-              className="bg-gray-100 border border-gray-300 border-l-0 rounded-r-md px-3 flex items-center"
-            >
-              <span className={`transform transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}>
-                ▼
-              </span>
-            </button>
-          </div>
-          
-          {/* Available Years Info */}
-          {<div className="text-center mt-4">
-            Saadaval aastad: {activeTab === "sector" ? "2020 - 2024" : "2010, 2014, 2018, 2022"}
-          </div>}
-          
-          {/* Dropdown Results */}
-          {isDropdownOpen && salaryData && (
-            <div className="absolute w-full mt-1 bg-white border border-gray-300 rounded-md shadow-md z-10 max-h-60 overflow-y-auto">
-              {filteredOptions.length > 0 ? (
-                filteredOptions.map((option) => (
-                  <div 
-                    key={option.code} 
-                    className="p-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => handleOptionSelect(option)}
-                  >
-                    {option.name}
-                  </div>
-                ))
-              ) : (
-                <div className="p-2 text-gray-500">
-                  {activeTab === "occupation" ? "Ametinimetuse andmed pole saadaval" : "Tulemusi ei leitud"}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        {/* Search Bar Component with consolidated props */}
+        <SearchDropdown
+          searchState={{
+            query: searchQuery,
+            activeTab,
+            isOpen: isDropdownOpen,
+            showAllOptions,
+            options: filteredOptions
+          }}
+          handlers={{
+            onChange: handleSearchChange,
+            onFocus: handleFocus,
+            onToggle: toggleDropdown,
+            onSelect: handleOptionSelect
+          }}
+        />
         
-        {/* Display Salary Data for Selected Option */}
-        {((activeTab === "sector" && selectedSector) || (activeTab === "occupation" && selectedOccupation)) && salaryData && (
-          <div className="w-full mt-6 p-4 border border-gray-300 rounded-md">
-            <h2 className="text-xl font-semibold mb-3">
-              {activeTab === "sector" ? selectedSector?.name : selectedOccupation?.name}
-            </h2>
-            
-            {/* Salary Data Table */}
-            {activeTab === "sector" && selectedSector ? (
-              <div>
-                <h3 className="text-lg mb-2">Keskmine brutokuupalk (EUR)</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="bg-gray-50">
-                        <th className="border border-gray-300 px-4 py-2">Aasta</th>
-                        <th className="border border-gray-300 px-4 py-2">Palk (EUR)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {salaryData.years.map((year) => (
-                        <tr key={year} className={salaryData.years.indexOf(year) % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                          <td className="border border-gray-300 px-4 py-2">{year}</td>
-                          <td className="border border-gray-300 px-4 py-2">
-                            {salaryData.salaries && salaryData.salaries[year] ? 
-                              salaryData.salaries[year][selectedSector.code] || 'N/A' 
-                              : 'N/A'}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            ) : activeTab === "occupation" && selectedOccupation ? (
-              <div>
-                <h3 className="text-lg mb-2">Keskmine brutokuupalk (EUR)</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="bg-gray-50">
-                        <th className="border border-gray-300 px-4 py-2">Aasta</th>
-                        <th className="border border-gray-300 px-4 py-2">Palk (EUR)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(salaryData.occupationSalaries ? Object.keys(salaryData.occupationSalaries) : []).map((year) => (
-                        <tr key={year} className={Object.keys(salaryData.occupationSalaries || {}).indexOf(year) % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                          <td className="border border-gray-300 px-4 py-2">{year}</td>
-                          <td className="border border-gray-300 px-4 py-2">
-                            {salaryData.occupationSalaries && 
-                             salaryData.occupationSalaries[year] && 
-                             salaryData.occupationSalaries[year][selectedOccupation.code] !== undefined && 
-                             salaryData.occupationSalaries[year][selectedOccupation.code] !== null
-                              ? salaryData.occupationSalaries[year][selectedOccupation.code]
-                              : 'Andmed puuduvad'}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center p-4 text-gray-500">
-                Andmed pole praegu saadaval
-              </div>
-            )}
-          </div>
+        {/* Analysis Panel Component */}
+        {((activeTab === "sector" && selectedSector) || (activeTab === "occupation" && selectedOccupation)) && (
+          <AnalysisPanel
+            title={activeTab === "sector" ? selectedSector?.name || "" : selectedOccupation?.name || ""}
+            loading={loading}
+            aiAnalysis={aiAnalysis}
+          />
         )}
       </div>
     </div>
