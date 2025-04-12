@@ -29,12 +29,22 @@ npm -v
 
 ## Installation
 
-### Option 1: Using the Setup Script (Recommended)
+### Option 1: Using the Setup Script
+
+#### For Linux/macOS:
 ```bash
 git clone https://github.com/kyrander/salary_market_analysis
-cd salary-market-analysis
+cd salary_market_analysis
 chmod +x setup.sh
 ./setup.sh
+```
+
+#### For Windows (PowerShell):
+```powershell
+git clone https://github.com/kyrander/salary_market_analysis
+cd salary_market_analysis
+# Run the PowerShell script (you may need to adjust execution policy)
+powershell -ExecutionPolicy Bypass -File setup.ps1
 ```
 
 The setup script will automatically install all dependencies for both server and frontend.
@@ -44,7 +54,7 @@ The setup script will automatically install all dependencies for both server and
 #### Step 1: Clone the Repository
 ```bash
 git clone https://github.com/kyrander/salary_market_analysis
-cd salary-market-analysis
+cd salary_market_analysis
 ```
 
 #### Step 2: Install Server Dependencies
