@@ -9,6 +9,9 @@ const port = 8080;
 // Enable CORS to allow frontend requests
 app.use(cors());
 
+// Middleware for parsing JSON
+app.use(express.json());
+
 app.get('/', (req, res) => {
   res.send('Tervitused serverist!');
 });
