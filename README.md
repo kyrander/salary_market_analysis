@@ -92,11 +92,11 @@ This application integrates with the following external APIs:
 
 ### Statistics Estonia Database API
 - Used for retrieving statistical data for salary market analysis
-- Documentation: [Link to Statistics Estonia Database API documentation]https://andmed.stat.ee/abi/api-juhend.pdf
+- Documentation: [Link to Statistics Estonia Database API documentation](https://andmed.stat.ee/abi/api-juhend.pdf)
 
 ### OpenAI API
 - Used for generating insights from Statistics Estonia salary data
-- Documentation: [Link to OpenAI API documentation]https://platform.openai.com/docs/api-reference/introduction
+- Documentation: [Link to OpenAI API documentation](https://platform.openai.com/docs/api-reference/introduction)
 - Requires an API key to be configured in the application
 - Setup: Add your OpenAI API key to the following file:
   ```
