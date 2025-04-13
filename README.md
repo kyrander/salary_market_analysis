@@ -77,7 +77,9 @@ cd server
 npm run dev
 ```
 
-The server will run on [http://localhost:8080](http://localhost:8080) (or the port specified in your configuration).
+**Important:** When starting the server, you'll be prompted to enter your OpenAI API key in the terminal. Simply paste or type your API key and press Enter.
+
+The server will run on [http://localhost:8080](http://localhost:8080).
 
 ### Client
 ```bash
@@ -98,12 +100,6 @@ This application integrates with the following external APIs:
 - Used for generating insights from Statistics Estonia salary data
 - Documentation: [Link to OpenAI API documentation](https://platform.openai.com/docs/api-reference/introduction)
 - Requires an API key to be configured in the application
-- Setup: Add your OpenAI API key to the following file:
-  ```
-  server\src\services\open_ai\request.js
-
-  row 5: const apiKey = ""
-  ```
 
 ## Troubleshooting
 - If the setup script fails, try the manual installation steps.

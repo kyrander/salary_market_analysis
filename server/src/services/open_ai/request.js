@@ -2,7 +2,12 @@ import OpenAI from "openai";
 
 export async function aiRequest(occupation, data) {
     // Use provided API key for OpenAI
-    const apiKey = ""
+    const apiKey = global.OPENAI_API_KEY;
+
+    // Check if API key is provided
+    if (!apiKey) {
+        throw new Error('OpenAI API key is not set. Please restart the server and provide a valid API key.');
+    }
 
     const openai = new OpenAI({
         apiKey: apiKey,
@@ -20,7 +25,7 @@ export async function aiRequest(occupation, data) {
         - Pakkuma soovitusi, kuidas ${occupation} saaks oma palka tõsta — näiteks soovitatavad oskused, tehnoloogiad, sertifikaadid (kui tundub ametile asjakohane) või muud arenguvõimalused.
         - Vorminda kogu väljund ülitihedas HTML-vormingus, ilma ühegi tühja reata.
         - Alapealkirjad kasuta <strong style="font-size: 1.1em; display: block; margin-top: 4px; margin-bottom: 2px;"> elemendina, et tagada, et iga pealkiri oleks omaette real.
-        - Lisa palgainfo iga aasta eraldi rea peal. MITTE MINGIL JUHUL ära pane mitut aastat samale reale!
+        - Lisa palgainfo iga aasta eraldi rea peal. Ära pane erinevaid aastaid samale reale!
         - Soovitused ilma reavahetusteta.
         - Ära kasuta CSS margin ega padding atribuute, mis tekitavad lisaruumi.
         - Kuva kogu info kompaktses plokis.
